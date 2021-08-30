@@ -92,8 +92,6 @@ const Header = (props) => {
   const isMovieSelected = props.isMovieDetailsPage;
   const movieId = props.movieId;
 
-  const { classes } = props;
-
   return (
     <div className="Header">
       <div className="mainContainer">
@@ -101,6 +99,7 @@ const Header = (props) => {
           <img
             src={require("../../../src/assets/logo.svg")}
             className="rotating logo"
+            alt="Logo.svg"
           />
         </div>
         <div className="headerActionButtons">

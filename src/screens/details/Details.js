@@ -67,7 +67,7 @@ const Details = (props) => {
       </Typography>
       <div className="detailsContainer">
         <div className="leftPane">
-          <img src={movieDetails.poster_url} />
+          <img src={movieDetails.poster_url} alt="movie poster" />
         </div>
         <div className="midPane">
           <Typography component={"h2"} variant="headline">
@@ -126,7 +126,7 @@ const Details = (props) => {
               {artists &&
                 artists.map((artist) => (
                   <GridListTile key={artist.id}>
-                    <img src={artist.profile_url} />
+                    <img src={artist.profile_url} alt="artist's picture" />
                     <GridListTileBar
                       title={`${artist.first_name} ${artist.last_name}`}
                     />
