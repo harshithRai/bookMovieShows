@@ -92,7 +92,10 @@ const Details = (props) => {
           <Typography style={{ marginTop: "16px" }}>
             <strong>Plot: </strong>
             <span>
-              <a href={wiki_url}>(Wiki Link)</a> {story_line}
+              <a href={wiki_url} target="_blank">
+                (Wiki Link)
+              </a>{" "}
+              {story_line}
             </span>
           </Typography>
           <Typography component={"span"} style={{ marginTop: "16px" }}>
@@ -126,7 +129,7 @@ const Details = (props) => {
               {artists &&
                 artists.map((artist) => (
                   <GridListTile key={artist.id}>
-                    <img src={artist.profile_url} alt="artist's picture" />
+                    <img src={artist.profile_url} alt={artist.first_name} />
                     <GridListTileBar
                       title={`${artist.first_name} ${artist.last_name}`}
                     />
