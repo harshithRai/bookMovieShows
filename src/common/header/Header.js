@@ -1,15 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import "./Header.css";
-import Typography from "@material-ui/core/Typography";
-import Input from "@material-ui/core/Input";
-import InputLabel from "@material-ui/core/InputLabel";
 import Button from "@material-ui/core/Button";
-import IconButton from "@material-ui/core/IconButton";
-import CloseIcon from "@material-ui/icons/Close";
 import { withStyles } from "@material-ui/core/styles";
-import PropTypes from "prop-types";
 import green from "@material-ui/core/colors/green";
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Modal from "react-modal";
 import LoginAndRegister from "../loginAndRegister/LoginAndRegister";
 
@@ -57,7 +51,6 @@ const Header = (props) => {
   };
 
   const renderBookShowButton = () => {
-    debugger;
     return isUserLoggedIn ? (
       <Link to={`/bookshow/${movieId}`}>
         <Button variant="contained" color="primary">
