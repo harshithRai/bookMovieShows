@@ -1,0 +1,17 @@
+.verticalElements {
+  display: flex;
+  flex-direction: column;
+}
+
+.tabs {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  text-transform: capitalize;
+}
+
+.formInputs {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
