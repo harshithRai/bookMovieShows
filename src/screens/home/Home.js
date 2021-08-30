@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { makeStyles } from "@material-ui/core/styles";
 import Header from "../../common/header/Header";
 import "./Home.css";
 import GridList from "@material-ui/core/GridList";
@@ -20,8 +19,6 @@ import TextField from "@material-ui/core/TextField";
 import { Link } from "react-router-dom";
 
 const Home = (props) => {
-  const { classes, currentUser, images } = props;
-
   const [releasedMovies, setReleasedMovies] = useState([]);
   const [upcomingMovies, setUpcomingMovies] = useState([]);
   const [genres, setGenres] = useState([]);
@@ -127,6 +124,7 @@ const Home = (props) => {
           })
         : [...releasedMovies];
 
+      // filter by artist
       let newlyFilteredMoviesByArtist = selectedArtists.length
         ? releasedMovies.filter((movie) => {
             return movie.artists.some((artist) => {
@@ -136,14 +134,16 @@ const Home = (props) => {
           })
         : [...releasedMovies];
 
+      // filter by name
       let newlyFilteredMoviesByName = filterText
         ? releasedMovies.filter((movie) => {
             return (
-              movie.title.toUpperCase().indexOf(filterText.toUpperCase()) != -1
+              movie.title.toUpperCase().indexOf(filterText.toUpperCase()) !== -1
             );
           })
         : [...releasedMovies];
 
+      // filter by date start
       let filterStartDate = new Date(startDateFilter);
       let newlyFilteredMoviesByStartDate = startDateFilter
         ? releasedMovies.filter((movie) => {
@@ -152,6 +152,7 @@ const Home = (props) => {
           })
         : [...releasedMovies];
 
+      // filter by release date end
       let filterEndDate = new Date(endDateFilter);
       let newlyFilteredMoviesByEndDate = endDateFilter
         ? releasedMovies.filter((movie) => {
@@ -160,15 +161,7 @@ const Home = (props) => {
           })
         : [...releasedMovies];
 
-      let currentlyFilteredMovies = [
-        ...new Set([
-          ...newlyFilteredMoviesByArtist,
-          ...newlyFilteredMoviesByGenre,
-          ...newlyFilteredMoviesByName,
-          ...newlyFilteredMoviesByStartDate,
-          ...newlyFilteredMoviesByEndDate,
-        ]),
-      ];
+      // arrange all filtered movies
       let arrays = [
         newlyFilteredMoviesByArtist,
         newlyFilteredMoviesByGenre,
@@ -176,6 +169,8 @@ const Home = (props) => {
         newlyFilteredMoviesByStartDate,
         newlyFilteredMoviesByEndDate,
       ];
+
+      // get just the common movies out of all filters
       setFilteredReleasedMovies(
         arrays.shift().filter(function (v) {
           return arrays.every(function (a) {
@@ -201,12 +196,14 @@ const Home = (props) => {
       .then((response) => response.json())
       .then((response) => {
         movies = response.movies;
-        setReleasedMovies(movies.filter((movie) => movie.status == "RELEASED"));
+        setReleasedMovies(
+          movies.filter((movie) => movie.status.toUpperCase() === "RELEASED")
+        );
         setFilteredReleasedMovies(
-          movies.filter((movie) => movie.status == "RELEASED")
+          movies.filter((movie) => movie.status.toUpperCase() === "RELEASED")
         );
         setUpcomingMovies(
-          movies.filter((movie) => movie.status == "PUBLISHED")
+          movies.filter((movie) => movie.status.toUpperCase() === "PUBLISHED")
         );
       });
 
@@ -248,7 +245,10 @@ const Home = (props) => {
         {upcomingMovies &&
           upcomingMovies.map((upcomingMovie) => (
             <GridListTile key={upcomingMovie.id}>
-              <img src={upcomingMovie.poster_url} />
+              <img
+                src={upcomingMovie.poster_url}
+                alt={upcomingMovie.title + " poster"}
+              />
               <GridListTileBar title={upcomingMovie.title} />
             </GridListTile>
           ))}
@@ -258,12 +258,7 @@ const Home = (props) => {
 
       <div className="releasedAndFilterSection">
         <div className="releasedMoviesSection">
-          <GridList
-            cellHeight={350}
-            cols={4}
-            className={classes && classes.gridList}
-            style={{ minWidth: "100%" }}
-          >
+          <GridList cellHeight={350} cols={4} style={{ minWidth: "100%" }}>
             {filteredReleasedMovies &&
               filteredReleasedMovies.map((releasedMovie) => (
                 <GridListTile
@@ -271,7 +266,10 @@ const Home = (props) => {
                   style={{ cursor: "pointer", display: "flex" }}
                 >
                   <Link to={`/movie/${releasedMovie.id}`}>
-                    <img src={releasedMovie.poster_url} />
+                    <img
+                      src={releasedMovie.poster_url}
+                      alt={releasedMovie.title + " poster"}
+                    />
                   </Link>
                   <GridListTileBar
                     title={releasedMovie.title}
@@ -374,24 +372,8 @@ const Home = (props) => {
                   onChange={handleEndDateChange}
                 />
               </FormControl>
-
               <br />
               <br />
-              {/* <br />
-              <br />
-              <FormControl required className="formControl">
-                <InputLabel htmlFor="tickets">
-                  Seat Selection: ( {availableTickets} available )
-                </InputLabel>
-                <Input
-                  id="tickets"
-                  value={tickets !== 0 ? tickets : ""}
-                  // onChange={ticketsChangeHandler}
-                />
-                <FormHelperText className={"reqTickets"}>
-                  <span className="red">Required</span>
-                </FormHelperText>
-              </FormControl> */}
               <Button
                 variant="contained"
                 onClick={() => filterResults()}

@@ -31,10 +31,6 @@ const LoginAndRegister = (props) => {
   ] = useState(false);
 
   const handleTabChange = (event, value) => {
-    // tabName === "register"
-    //   ? setIsLoginSelected(false)
-    //   : setIsLoginSelected(true);
-
     setTabValue(value);
   };
 
@@ -143,10 +139,6 @@ const LoginAndRegister = (props) => {
       }
     }
   };
-
-  // const renderForm = () => {
-  //   return isLoginSelected ? renderLoginForm() : renderRegisterForm();
-  // };
 
   const renderLoginForm = (props) => {
     return (
@@ -285,38 +277,6 @@ const LoginAndRegister = (props) => {
   };
 
   return (
-    // (
-    //   <div>
-    //     <div className="verticalElements">
-    //       <div className="tabs">
-    //         <div
-    //           onClick={() => handleTabChange("login")}
-    //           style={{
-    //             borderBottom: isLoginSelected ? "2px solid red" : null,
-    //             width: "100%",
-    //             textAlign: "center",
-    //             cursor: "pointer",
-    //           }}
-    //         >
-    //           LOGIN
-    //         </div>
-    //         <div
-    //           onClick={() => handleTabChange("register")}
-    //           style={{
-    //             borderBottom: !isLoginSelected ? "2px solid red" : null,
-    //             width: "100%",
-    //             textAlign: "center",
-    //             cursor: "pointer",
-    //           }}
-    //         >
-    //           REGISTER
-    //         </div>
-    //       </div>
-    //       <div>{renderForm()}</div>
-    //     </div>
-    //   </div>
-    // )
-
     <div>
       <Tabs value={value} onChange={handleTabChange} className="center">
         <Tab label="Login" />
