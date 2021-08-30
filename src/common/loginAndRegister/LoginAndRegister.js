@@ -11,7 +11,6 @@ const TablePanel = (props) => {
 };
 
 const LoginAndRegister = (props) => {
-  const [isLoginSelected, setIsLoginSelected] = useState(true);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -97,11 +96,6 @@ const LoginAndRegister = (props) => {
   };
 
   const loginUser = () => {
-    let data = JSON.stringify({
-      username: username,
-      password: loginPassword,
-    });
-
     const authorization = window.btoa(username + ":" + loginPassword);
     const headers = {
       Accept: "application/json;charset=UTF-8",
@@ -114,7 +108,7 @@ const LoginAndRegister = (props) => {
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.status == "ACTIVE") {
+        if (data.status.toUpperCase() === "ACTIVE") {
           sessionStorage.setItem("isUserLoggedIn", true);
           sessionStorage.setItem("userDetails", JSON.stringify(data));
           props.setIsUserLoggedIn(true);
