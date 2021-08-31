@@ -1,13 +1,19 @@
-.heading {
+.upcoming-movies-heading {
   background-color: #ff9999;
+  height: 22px;
   text-align: center;
+  width: 100%;
   padding: 8px;
-  font-size: 1rem;
 }
 
-.releasedAndFilterSection {
+ul.upcoming-movies {
+  flex-wrap: nowrap;
+  margin: 0px !important;
+  width: 100%;
+}
+
+.main-container {
   display: flex;
-  flex-direction: row;
 }
 
 .releasedMoviesSection {
@@ -19,4 +25,8 @@
 .filterSection {
   width: 24%;
   margin: 16px;
+}
+
+.releasedMoviePoster {
+  cursor: pointer;
 }

@@ -7,381 +7,325 @@ import GridListTileBar from "@material-ui/core/GridListTileBar";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import Input from "@material-ui/core/Input";
-import Typography from "@material-ui/core/Typography";
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 import Button from "@material-ui/core/Button";
 import Checkbox from "@material-ui/core/Checkbox";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
+import ListItemText from "@material-ui/core/ListItemText";
 import TextField from "@material-ui/core/TextField";
 import { Link } from "react-router-dom";
+import { createMuiTheme } from "@material-ui/core/styles";
 
 const Home = (props) => {
+  const theme = createMuiTheme({
+    typography: {
+      useNextVariants: true,
+    },
+  });
+  const styles = {
+    cardHeading: {
+      color: theme.palette.primary.light,
+    },
+    cardItem: {
+      margin: theme.spacing.unit,
+    },
+  };
+
+  const initialFilters = {
+    movieName: "",
+    genre: [],
+    artist: [],
+    releaseDateStart: "",
+    releaseDateEnd: "",
+  };
+
+  const [upComingMovies, setUpcomingMovies] = useState([]);
   const [releasedMovies, setReleasedMovies] = useState([]);
-  const [upcomingMovies, setUpcomingMovies] = useState([]);
   const [genres, setGenres] = useState([]);
   const [artists, setArtists] = useState([]);
-  const [selectedGenres, setSelectedGenres] = useState([]);
-  const [selectedArtists, setSelectedArtists] = useState([]);
-  const [filterText, setFilterText] = useState("");
-  const [startDateFilter, setStartDateFilter] = useState("");
-  const [endDateFilter, setEndDateFilter] = useState("");
-  const [filteredReleasedMovies, setFilteredReleasedMovies] = useState([]);
+  const [filters, setFilters] = useState(initialFilters);
 
-  const filterTextChangeHandler = (event) => {
-    setFilterText(event.target.value);
+  const handleFormInput = (e) => {
+    const values = { ...filters };
+    values[e.target.name] = e.target.value;
+    setFilters(values);
   };
 
-  const handleStartDateChange = (event) => {
-    setStartDateFilter(event.target.value);
-  };
-
-  const handleEndDateChange = (event) => {
-    setEndDateFilter(event.target.value);
-  };
-
-  const isArtistChecked = (artistID) => {
-    const foundEl =
-      selectedArtists &&
-      selectedArtists.find((artist) => {
-        return artist.id === artistID;
+  const getUpcomingMovies = () => {
+    fetch(props.baseUrl + `movies?status=PUBLISHED`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setUpcomingMovies(data.movies);
       });
-
-    return !!foundEl;
   };
 
-  const toggleSelectedArtists = (artistID) => {
-    const found = isArtistChecked(artistID);
-
-    if (found) {
-      const updatedArtistsSelected = selectedArtists.filter(
-        (artist) => artist.id !== artistID
-      );
-      setSelectedArtists(updatedArtistsSelected);
-    } else {
-      const tempSelectionObj = [...selectedArtists];
-      tempSelectionObj.push(
-        artists &&
-          artists.find((artist) => {
-            return artist.id === artistID;
-          })
-      );
-      setSelectedArtists(tempSelectionObj);
-    }
-  };
-
-  const isGenreChecked = (genreID) => {
-    const foundEl =
-      selectedGenres &&
-      selectedGenres.find((genre) => {
-        return genre.id === genreID;
+  const getReleasedMovies = () => {
+    fetch(props.baseUrl + `movies?status=RELEASED`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setReleasedMovies(data.movies);
       });
-
-    return !!foundEl;
   };
 
-  const toggleSelectedGenres = (genreID) => {
-    const found = isGenreChecked(genreID);
-
-    if (found) {
-      const updatedGenresSelected = selectedGenres.filter(
-        (genre) => genre.id !== genreID
-      );
-      setSelectedGenres(updatedGenresSelected);
-    } else {
-      const tempSelectionObj = [...selectedGenres];
-      tempSelectionObj.push(
-        genres &&
-          genres.find((genre) => {
-            return genre.id === genreID;
-          })
-      );
-      setSelectedGenres(tempSelectionObj);
-    }
+  const getGenres = () => {
+    fetch(props.baseUrl + `genres`, {
+      method: "GET",
+      headhers: {
+        Accept: "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setGenres(data.genres);
+      });
   };
 
-  const filterResults = () => {
-    const allMovies = [...releasedMovies];
-
-    if (
-      selectedGenres.length === 0 &&
-      selectedArtists.length === 0 &&
-      !filterText &&
-      !startDateFilter &&
-      !endDateFilter
-    ) {
-      setFilteredReleasedMovies(allMovies);
-    } else {
-      // filter by genre
-      let newlyFilteredMoviesByGenre = selectedGenres.length
-        ? releasedMovies.filter((movie) => {
-            return movie.genres.some((genre) => {
-              const genreNames = selectedGenres.map((selGen) => selGen.genre);
-              return genreNames.includes(genre);
-            });
-          })
-        : [...releasedMovies];
-
-      // filter by artist
-      let newlyFilteredMoviesByArtist = selectedArtists.length
-        ? releasedMovies.filter((movie) => {
-            return movie.artists.some((artist) => {
-              const artistIDs = selectedArtists.map((selArt) => selArt.id);
-              return artistIDs.includes(artist.id);
-            });
-          })
-        : [...releasedMovies];
-
-      // filter by name
-      let newlyFilteredMoviesByName = filterText
-        ? releasedMovies.filter((movie) => {
-            return (
-              movie.title.toUpperCase().indexOf(filterText.toUpperCase()) !== -1
-            );
-          })
-        : [...releasedMovies];
-
-      // filter by date start
-      let filterStartDate = new Date(startDateFilter);
-      let newlyFilteredMoviesByStartDate = startDateFilter
-        ? releasedMovies.filter((movie) => {
-            let movieReleaseDate = new Date(movie.release_date);
-            return movieReleaseDate.getTime() >= filterStartDate.getTime();
-          })
-        : [...releasedMovies];
-
-      // filter by release date end
-      let filterEndDate = new Date(endDateFilter);
-      let newlyFilteredMoviesByEndDate = endDateFilter
-        ? releasedMovies.filter((movie) => {
-            let movieReleaseDate = new Date(movie.release_date);
-            return movieReleaseDate.getTime() <= filterEndDate.getTime();
-          })
-        : [...releasedMovies];
-
-      // arrange all filtered movies
-      let arrays = [
-        newlyFilteredMoviesByArtist,
-        newlyFilteredMoviesByGenre,
-        newlyFilteredMoviesByName,
-        newlyFilteredMoviesByStartDate,
-        newlyFilteredMoviesByEndDate,
-      ];
-
-      // get just the common movies out of all filters
-      setFilteredReleasedMovies(
-        arrays.shift().filter(function (v) {
-          return arrays.every(function (a) {
-            return a.indexOf(v) !== -1;
-          });
-        })
-      );
-    }
+  const getArtists = () => {
+    fetch(props.baseUrl + `artists`, {
+      method: "GET",
+      headhers: {
+        Accept: "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setArtists(data.artists);
+      });
   };
 
   useEffect(() => {
-    let moviesList = null,
-      movies = [];
-
-    fetch(props.baseUrl + "movies", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "no-cache",
-      },
-      body: moviesList,
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        movies = response.movies;
-        setReleasedMovies(
-          movies.filter((movie) => movie.status.toUpperCase() === "RELEASED")
-        );
-        setFilteredReleasedMovies(
-          movies.filter((movie) => movie.status.toUpperCase() === "RELEASED")
-        );
-        setUpcomingMovies(
-          movies.filter((movie) => movie.status.toUpperCase() === "PUBLISHED")
-        );
-      });
-
-    let genresObj = null;
-    fetch(props.baseUrl + "genres", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "no-cache",
-      },
-      body: genresObj,
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        setGenres(response.genres);
-      });
-
-    let artistsObj = null;
-    fetch(props.baseUrl + "artists", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "no-cache",
-      },
-      body: artistsObj,
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        setArtists(response.artists);
-      });
+    getUpcomingMovies();
+    getReleasedMovies();
+    getGenres();
+    getArtists();
   }, []);
 
-  return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      <Header baseUrl={props.baseUrl} />
-      <div className="heading">Upcoming movies</div>
+  const getFilteredMovies = () => {
+    const queryParams = `title=${filters.movieName}&start_date=${
+      filters.releaseDateStart
+    }&end_date=${filters.releaseDateEnd}&genre=${filters.genre.join(
+      ", "
+    )}&artists=${filters.artist.join(", ")},&status=RELEASED`;
 
-      <GridList cellHeight={250} cols={6} style={{ flexWrap: "nowrap" }}>
-        {upcomingMovies &&
-          upcomingMovies.map((upcomingMovie) => (
-            <GridListTile key={upcomingMovie.id}>
-              <img
-                src={upcomingMovie.poster_url}
-                alt={upcomingMovie.title + " poster"}
-              />
-              <GridListTileBar title={upcomingMovie.title} />
-            </GridListTile>
-          ))}
+    fetch(props.baseUrl + `movies?${queryParams}`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setReleasedMovies(data.movies);
+      });
+  };
+
+  const applyFilters = () => {
+    if (
+      filters.movieName === initialFilters.movieName &&
+      filters.releaseDateEnd === initialFilters.releaseDateEnd &&
+      filters.releaseDateStart === initialFilters.releaseDateStart &&
+      filters.genre.join(",") === initialFilters.genre.join(",") &&
+      filters.artist.join(",") === initialFilters.artist.join(",")
+    ) {
+      getReleasedMovies();
+      return;
+    }
+
+    getFilteredMovies();
+  };
+
+  return (
+    <div className="home-container">
+      <Header {...props} />
+      <div className="upcoming-movies-heading">Upcoming Movies</div>
+      <GridList className="upcoming-movies" cols={6} cellHeight={250}>
+        {upComingMovies.map((movie) => (
+          <GridListTile key={movie.poster_url}>
+            <img src={movie.poster_url} alt={movie.title + "(poster)"} />{" "}
+            <GridListTileBar title={movie.title} />
+          </GridListTile>
+        ))}
       </GridList>
 
-      <br />
-
-      <div className="releasedAndFilterSection">
+      <div className="main-container">
         <div className="releasedMoviesSection">
-          <GridList cellHeight={350} cols={4} style={{ minWidth: "100%" }}>
-            {filteredReleasedMovies &&
-              filteredReleasedMovies.map((releasedMovie) => (
-                <GridListTile
-                  key={releasedMovie.id}
-                  style={{ cursor: "pointer", display: "flex" }}
-                >
-                  <Link to={`/movie/${releasedMovie.id}`}>
-                    <img
-                      src={releasedMovie.poster_url}
-                      alt={releasedMovie.title + " poster"}
-                    />
-                  </Link>
-                  <GridListTileBar
-                    title={releasedMovie.title}
-                    subtitle={`Release Date: ${releasedMovie.release_date}`}
-                  />
-                </GridListTile>
-              ))}
+          <GridList
+            className="released-movies"
+            cols={4}
+            cellHeight={350}
+            spacing={16}
+          >
+            {releasedMovies.map((movie) => (
+              <GridListTile
+                key={movie.poster_url}
+                className="releasedMoviePoster"
+                component={Link}
+                to={`/movie/${movie.id}`}
+              >
+                <img src={movie.poster_url} alt={movie.title + "(poster)"} />
+                <GridListTileBar
+                  title={movie.title}
+                  subtitle={`Release Date: ${new Date(
+                    movie.release_date
+                  ).toDateString()}`}
+                />
+              </GridListTile>
+            ))}
           </GridList>
         </div>
-        <div>
-          <Card className="cardStyle" style={{ width: "100%" }}>
-            <CardContent>
-              <Typography variant="headline" component="h2">
+
+        <div className="filterSection">
+          <Card>
+            <CardContent style={{ display: "flex", flexDirection: "column" }}>
+              <span style={{ ...styles.cardHeading, ...styles.cardItem }}>
                 FIND MOVIES BY:
-              </Typography>
-              <br />
-
-              <FormControl className="formControl">
-                <InputLabel htmlFor="movieNameFilter">Movie Name</InputLabel>
-                <Input
-                  id="movieNameFilter"
-                  value={filterText}
-                  onChange={(e) => filterTextChangeHandler(e)}
-                />
-              </FormControl>
-              <br />
-              <br />
-
-              <FormControl className="formControl">
-                <InputLabel htmlFor="genres">Genres</InputLabel>
-                <Select value={selectedGenres}>
-                  {genres.map((genre) => (
-                    <MenuItem key={"genre" + genre.id} value={genre.genre}>
-                      <FormControlLabel
-                        value="end"
-                        control={
-                          <Checkbox
-                            color="primary"
-                            key={`genreCheck-${genre.id}`}
-                            checked={isGenreChecked(genre.id)}
-                            onClick={() => toggleSelectedGenres(genre.id)}
-                          />
-                        }
-                        label={`${genre.genre}`}
-                        labelPlacement="end"
-                      />
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <br />
-              <br />
-              <FormControl className="formControl">
-                <InputLabel htmlFor="artists">Artists</InputLabel>
-                <Select value={selectedArtists}>
-                  {artists.map((artist) => (
-                    <MenuItem key={"artist" + artist.id} value={artist.id}>
-                      <FormControlLabel
-                        value="end"
-                        control={
-                          <Checkbox
-                            color="primary"
-                            key={`artistCheck-${artist.id}`}
-                            checked={isArtistChecked(artist.id)}
-                            onClick={() => toggleSelectedArtists(artist.id)}
-                          />
-                        }
-                        label={`${artist.first_name} ${artist.last_name}`}
-                        labelPlacement="end"
-                      />
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <br />
-              <br />
-              <FormControl required className="formControl">
-                <TextField
-                  id="standard-basic"
-                  label="Release Date Start"
-                  type="date"
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  onChange={handleStartDateChange}
-                />
-              </FormControl>
-
-              <br />
-              <br />
-
-              <FormControl required className="formControl">
-                <TextField
-                  id="standard-basic"
-                  label="Release Date End"
-                  type="date"
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  onChange={handleEndDateChange}
-                />
-              </FormControl>
-              <br />
-              <br />
-              <Button
-                variant="contained"
-                onClick={() => filterResults()}
-                color="primary"
-                fullWidth
+              </span>
+              <FormControl
+                component="div"
+                required
+                className="input-field"
+                style={{ ...styles.cardItem }}
               >
-                APPLY
-              </Button>
+                <InputLabel htmlFor="movieName">Movie Name</InputLabel>
+                <Input
+                  id="movieName"
+                  name="movieName"
+                  value={filters.movieName}
+                  onChange={handleFormInput}
+                />
+              </FormControl>
+              <FormControl
+                component="div"
+                required
+                className="input-field"
+                style={{ ...styles.cardItem }}
+              >
+                <InputLabel htmlFor="genre">Genre</InputLabel>
+                <Select
+                  id="genre"
+                  name="genre"
+                  multiple
+                  value={filters.genre}
+                  onChange={handleFormInput}
+                  input={<Input id="select-multiple-checkbox" />}
+                  renderValue={(selected) => selected.join(", ")}
+                >
+                  {genres.map((genre) => (
+                    <MenuItem key={genre.id} value={genre.genre}>
+                      <Checkbox
+                        color="primary"
+                        checked={filters.genre.indexOf(genre.genre) > -1}
+                      />
+                      <ListItemText primary={genre.description} />
+                    </MenuItem>
+                  ))}
+                </Select>
+                <Input
+                  style={{
+                    visibility: "hidden",
+                    height: "0px",
+                  }}
+                />
+              </FormControl>
+              <FormControl
+                component="div"
+                required
+                className="input-field"
+                style={{ ...styles.cardItem }}
+              >
+                <InputLabel htmlFor="artist">Artist</InputLabel>
+                <Select
+                  id="artist"
+                  name="artist"
+                  multiple
+                  value={filters.artist}
+                  onChange={handleFormInput}
+                  input={<Input id="select-multiple-checkbox" />}
+                  renderValue={(selected) => selected.join(", ")}
+                >
+                  {artists.map((artist) => (
+                    <MenuItem
+                      key={artist.id}
+                      value={`${artist.first_name} ${artist.last_name}`}
+                    >
+                      <Checkbox
+                        checked={
+                          filters.artist.indexOf(
+                            `${artist.first_name} ${artist.last_name}`
+                          ) > -1
+                        }
+                      />
+                      <ListItemText
+                        primary={`${artist.first_name} ${artist.last_name}`}
+                      />
+                    </MenuItem>
+                  ))}
+                </Select>
+                <Input
+                  style={{
+                    visibility: "hidden",
+                    height: "0px",
+                  }}
+                />
+              </FormControl>
+              <FormControl
+                component="div"
+                required
+                className="input-field"
+                style={{ ...styles.cardItem }}
+              >
+                <TextField
+                  id="release-date-start"
+                  name="releaseDateStart"
+                  type="date"
+                  label="Release Date Start"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  value={filters.releaseEndDate}
+                  onChange={handleFormInput}
+                />
+              </FormControl>
+              <FormControl
+                component="div"
+                required
+                className="input-field"
+                style={{ ...styles.cardItem }}
+              >
+                <TextField
+                  id="release-date-end"
+                  name="releaseDateEnd"
+                  type="date"
+                  label="Release Date End"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  value={filters.releaseEndDate}
+                  onChange={handleFormInput}
+                />
+              </FormControl>
+              <FormControl component="div" style={{ ...styles.cardItem }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={applyFilters}
+                  component="div"
+                >
+                  APPLY
+                </Button>
+              </FormControl>
             </CardContent>
           </Card>
         </div>
