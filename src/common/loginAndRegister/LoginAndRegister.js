@@ -30,7 +30,12 @@ const LoginAndRegister = (props) => {
     setShowMissingRegisterFieldsMessage,
   ] = useState(false);
 
+  const [isLoginButtonClicked, setIsLoginButtonClicked] = useState(false);
+  const [isRegisterButtonClicked, setIsRegisterButtonClicked] = useState(false);
+
   const handleTabChange = (event, value) => {
+    setIsLoginButtonClicked(false);
+    setIsRegisterButtonClicked(false);
     setTabValue(value);
   };
 
@@ -120,12 +125,14 @@ const LoginAndRegister = (props) => {
     // this function will be triggered by the submit event
 
     if (value === 0) {
+      setIsLoginButtonClicked(true);
       if (!username || !loginPassword) {
         setShowMissingLoginFieldsMessage(true);
       } else {
         loginUser();
       }
     } else {
+      setIsRegisterButtonClicked(true);
       if (
         !firstName ||
         !lastName ||
@@ -147,11 +154,11 @@ const LoginAndRegister = (props) => {
           <br />
           <TextField
             required
-            id="standard-basic"
+            id="loginUsername"
             label="Username"
             onChange={handleUsernameChange}
-            error={!username}
-            helperText={!username ? "Required" : ""}
+            error={isLoginButtonClicked && !username}
+            helperText={isLoginButtonClicked && !username ? "Required" : ""}
             value={username}
           />
           <br />
@@ -160,8 +167,10 @@ const LoginAndRegister = (props) => {
             id="standard-password-input"
             label="Password"
             type="password"
-            error={!loginPassword}
-            helperText={!loginPassword ? "Required" : ""}
+            error={isLoginButtonClicked && !loginPassword}
+            helperText={
+              isLoginButtonClicked && !loginPassword ? "Required" : ""
+            }
             onChange={handleLoginPasswordChange}
             value={loginPassword}
           />
@@ -199,33 +208,39 @@ const LoginAndRegister = (props) => {
           <br />
           <TextField
             required
-            id="standard-basic"
+            id="standard-basic-firstName"
             label="First Name"
             onChange={handleFirstNameChange}
-            error={!firstName}
-            helperText={!firstName ? "Required" : ""}
+            error={isRegisterButtonClicked && !firstName}
+            helperText={isRegisterButtonClicked && !firstName ? "Required" : ""}
             value={firstName}
           />
           <br />
           <TextField
             required
-            id="standard-basic"
+            id="standard-basic-lastname"
             label="Last Name"
             onChange={handleLastNameChange}
             onBlur={handleLastNameChange}
-            error={!lastName}
-            helperText={!lastName ? "Required" : ""}
+            error={isRegisterButtonClicked && !lastName}
+            helperText={isRegisterButtonClicked && !lastName ? "Required" : ""}
             value={lastName}
           />
           <br />
           <TextField
             required
-            id="standard-basic"
+            id="standard-basic-email"
             label="Email"
             onChange={handleEmailChange}
-            error={!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)}
+            error={
+              isRegisterButtonClicked &&
+              !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)
+            }
             helperText={
-              !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) ? "Required" : ""
+              isRegisterButtonClicked &&
+              !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)
+                ? "Required"
+                : ""
             }
             value={email}
           />
@@ -236,18 +251,18 @@ const LoginAndRegister = (props) => {
             label="Password"
             type="password"
             onChange={handlePasswordChange}
-            error={!password}
-            helperText={!password ? "Required" : ""}
+            error={isRegisterButtonClicked && !password}
+            helperText={isRegisterButtonClicked && !password ? "Required" : ""}
             value={password}
           />
           <br />
           <TextField
             required
-            id="standard-basic"
+            id="standard-basic-contact"
             label="Contact No."
             onChange={handlePhoneChange}
-            error={!phone}
-            helperText={!phone ? "Required" : ""}
+            error={isRegisterButtonClicked && !phone}
+            helperText={isRegisterButtonClicked && !phone ? "Required" : ""}
             value={phone}
           />
           <br />
